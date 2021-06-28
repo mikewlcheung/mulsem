@@ -1,0 +1,6 @@
+exportPattern("^[^\\.]")
+import(OpenMx)
+
+importFrom(stats, coef, cov2cor, var, vcov, cov, cor, sd, runif)
+
+S3method(print, RA)
