@@ -1,0 +1,15 @@
+language: r
+cache: packages
+sudo: false
+
+os: 
+- linux
+
+r:
+# - oldrel
+ - release
+ - devel 
+
+warnings_are_errors: true    
+r_check_args: "--run-dontrun"
+
