@@ -1,5 +1,4 @@
-[![Build Status](https://travis-ci.org/mikewlcheung/mulsem.svg?branch=master)](https://travis-ci.org/mikewlcheung/mulsem)
-
+[![Build Status](https://www.travis-ci.com/mikewlcheung/mulsem.svg?branch=main)](https://www.travis-ci.com/mikewlcheung/mulsem)
 
 The `mulSEM` package includes some multivariate analyses using a structural equation modeling (SEM) approach via the 'OpenMx' package. These analsyes include, e.g., canonical correlation analysis and redundancy analysis.
 
