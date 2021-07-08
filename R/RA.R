@@ -22,8 +22,11 @@ RA <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
 
     tri_prod  <- solve(Rxx) %*% t(Rxy) %*% Rxy
     ei <- eigen(tri_prod)
-
-    ## Check if d=p-q>2
+    ## Take the real parts (if there are complex)
+    ei$values <- Re(ei$values)
+    ei$vectors <- Re(ei$vectors)
+    
+    ## Check if d=p-q>=2
     d <- p-q
     
     ## D_s: A pxp matrix of T/F elements.
@@ -71,15 +74,15 @@ RA <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
                   labels=outer(1:p, 1:p, function(x, y) paste0("W", x, "_", y)),
                   name="W")
 
-  ## Block diagonal matrix of W and I
-  W_I <- mxAlgebra(rbind(cbind(solve(t(W)), t(qZerop)),
+    ## Block diagonal matrix of W and I
+    W_I <- mxAlgebra(rbind(cbind(solve(t(W)), t(qZerop)),
                          cbind(qZerop, Iq)), name="W_I")
 
-  ## Ryy
-  Ryy <- mxMatrix("Stand", nrow=q, ncol=q, free=TRUE,
-                  values=vechs(cov2cor(Cov[Y_vars, Y_vars])),
-                  labels=vechs(outer(1:q, 1:q, function(x, y) paste0("Ry", x, "_", y))),
-                  name="Ryy")
+    ## Ryy
+    Ryy <- mxMatrix("Stand", nrow=q, ncol=q, free=TRUE,
+                    values=vechs(cov2cor(Cov[Y_vars, Y_vars])),
+                    labels=vechs(outer(1:q, 1:q, function(x, y) paste0("Ry", x, "_", y))),
+                    name="Ryy")
 
     ## Ly
     if (d > 0) {
@@ -171,7 +174,7 @@ RA <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
         mx.fit <- mxRun(model)
     }
     ## Run it one more time to minimize error
-    mx.fit <- mxRun(mx.fit)
+    mx.fit <- suppressMessages(mxRun(mx.fit))
     
     #### Constraints for checking
     ## Diagonals should be 1: Equation (14)
@@ -199,15 +202,15 @@ RA <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
     Lambdas <- mxEval(Lambdas, mx.fit)
 
     ## SE of W matrix
-    W_SE <- mxSE(W, mx.fit)
+    W_SE <- suppressMessages(mxSE(W, mx.fit))
     dimnames(W_SE) <- list(X_vars, X_vars)
   
     ## SE of Ly matrix
-    Ly_SE <- mxSE(Ly, mx.fit)
+    Ly_SE <- suppressMessages(mxSE(Ly, mx.fit))
     dimnames(Ly_SE) <- list(Y_vars, X_vars)    
   
     ## SE of Lx matrix
-    Lx_SE <- mxSE(Lx, mx.fit)
+    Lx_SE <- suppressMessages(mxSE(Lx, mx.fit))
     dimnames(Lx_SE) <- list(X_vars, X_vars)   
     
     out <- list(mx.fit=mx.fit, Constraint1=Constraint1, Constraint2=Constraint2,
