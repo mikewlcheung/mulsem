@@ -8,7 +8,7 @@
   standardized estimates.
 }
 \usage{
-RA(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...)
+RA(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, optimizer=TRUE, ...)
 }
 \arguments{
   \item{X_vars}{A vector of characters of the X variables.}
@@ -20,7 +20,11 @@ RA(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...)
   \item{extraTries}{This function uses \code{\link[OpenMx]{mxTryHard}}
 	to obtain the parameter estimates and their standard
 	errors. \code{extraTries} indicates the number of extra runs.}
-  \item{\dots}{Additional arguments sent to \code{\link[OpenMx]{mxTryHard}}.}
+  \item{optimizer}{If \code{TRUE}, \code{OpenMx} will activate the
+	optimizer to find the best solution. If \code{FALSE}, \code{OpenMx}
+	will treat the internal starting values as the best solution. }
+  \item{\dots}{Additional arguments sent to either
+	\code{\link[OpenMx]{mxTryHard}} or \code{\link[OpenMx]{mxRun}}.}
 }
 
 \value{A list of output. The mx fitted object is in the slot of \code{mx.fit}.

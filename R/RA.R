@@ -1,4 +1,4 @@
-RA <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
+RA <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, optimizer=TRUE, ...) {
 
     # oldw <- getOption("warn")
     # options(warn = -1)
@@ -144,9 +144,9 @@ RA <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
         expFun <- mxExpectationNormal(covariance="expCov", dimnames=c(X_vars, Y_vars))
     
         ## Combine everything to a model
-        model <- mxModel("RA", mxdata,
-                         qZerop, SD, Iq, Ip, W, W_I, Ryy, Ly, I_R, pOne1, psZero1, Lambdas, 
-                         Lx, q_matrix, expCov, expFun, mxFitFunctionML(), constraint1, constraint2)
+        mx.model <- mxModel("RA", mxdata,
+                            qZerop, SD, Iq, Ip, W, W_I, Ryy, Ly, I_R, pOne1, psZero1, Lambdas, 
+                            Lx, q_matrix, expCov, expFun, mxFitFunctionML(), constraint1, constraint2)
   
     } else {
       ## Raw data as inputs
@@ -162,19 +162,27 @@ RA <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
                                       dimnames=c(X_vars, Y_vars))    
     
         ## Combine everything to a model
-        model <- mxModel("RA", mxdata,
-                         qZerop, SD, Iq, Ip, W, W_I, Ryy, Ly, I_R, pOne1, psZero1, 
-                         Lambdas, expMean, Lx, q_matrix, expCov, expFun, 
-                         mxFitFunctionML(), constraint1, constraint2)    
+        mx.model <- mxModel("RA", mxdata,
+                            qZerop, SD, Iq, Ip, W, W_I, Ryy, Ly, I_R, pOne1, psZero1, 
+                            Lambdas, expMean, Lx, q_matrix, expCov, expFun, 
+                            mxFitFunctionML(), constraint1, constraint2)    
     }
-  
-    if (extraTries>0) {
-        mx.fit <- mxTryHard(model, extraTries = extraTries, ...) 
+
+    ## User the starting values as the final estimates.
+    ## Do not activate the optimizer
+    if (optimizer==FALSE) {
+        plan <- omxDefaultComputePlan()
+        plan$steps <- list(plan$steps$ND, plan$steps$SE, plan$steps$RD, plan$steps$RE)
+        mx.model <- mxModel(mx.model, plan)
+    }
+
+    if (optimizer != FALSE | extraTries==0) {
+        mx.fit <- suppressMessages(mxRun(mx.model, ...))
     } else {
-        mx.fit <- mxRun(model)
+        mx.fit <- mxTryHard(mx.model, extraTries = extraTries, ...) 
+        ## Run it one more time to minimize error
+        mx.fit <- suppressMessages(mxRun(mx.fit))
     }
-    ## Run it one more time to minimize error
-    mx.fit <- suppressMessages(mxRun(mx.fit))
     
     #### Constraints for checking
     ## Diagonals should be 1: Equation (14)
@@ -213,9 +221,10 @@ RA <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
     Lx_SE <- suppressMessages(mxSE(Lx, mx.fit))
     dimnames(Lx_SE) <- list(X_vars, X_vars)   
     
-    out <- list(mx.fit=mx.fit, Constraint1=Constraint1, Constraint2=Constraint2,
-                W_est=W_est, Ly_est=Ly_est, Lx_est=Lx_est, Lambdas=Lambdas,
-                W_SE=W_SE, Ly_SE=Ly_SE, Lx_SE=Lx_SE)  
+    out <- list(mx.fit=mx.fit, mx.model=mx.model, Constraint1=Constraint1,
+                Constraint2=Constraint2, W_est=W_est, Ly_est=Ly_est,
+                Lx_est=Lx_est, Lambdas=Lambdas, W_SE=W_SE,
+                Ly_SE=Ly_SE, Lx_SE=Lx_SE)  
     class(out) <- "RA"
   
     # options(warn = oldw)
