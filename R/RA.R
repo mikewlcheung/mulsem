@@ -176,7 +176,7 @@ RA <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, optimizer=
         mx.model <- mxModel(mx.model, plan)
     }
 
-    if (optimizer != FALSE | extraTries==0) {
+    if (optimizer==FALSE | extraTries==0) {
         mx.fit <- suppressMessages(mxRun(mx.model, ...))
     } else {
         mx.fit <- mxTryHard(mx.model, extraTries = extraTries, ...) 
