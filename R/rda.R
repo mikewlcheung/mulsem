@@ -1,4 +1,4 @@
-RA <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, optimizer=TRUE, ...) {
+rda <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
 
     # oldw <- getOption("warn")
     # options(warn = -1)
@@ -170,13 +170,13 @@ RA <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, optimizer=
 
     ## User the starting values as the final estimates.
     ## Do not activate the optimizer
-    if (optimizer==FALSE) {
-        plan <- omxDefaultComputePlan()
-        plan$steps <- list(plan$steps$ND, plan$steps$SE, plan$steps$RD, plan$steps$RE)
-        mx.model <- mxModel(mx.model, plan)
-    }
+    ## if (optimizer==FALSE) {
+    ##     plan <- omxDefaultComputePlan()
+    ##     plan$steps <- list(plan$steps$ND, plan$steps$SE, plan$steps$RD, plan$steps$RE)
+    ##     mx.model <- mxModel(mx.model, plan)
+    ## }
 
-    if (optimizer==FALSE | extraTries==0) {
+    if (extraTries==0) {
         mx.fit <- suppressMessages(mxRun(mx.model, ...))
     } else {
         mx.fit <- mxTryHard(mx.model, extraTries = extraTries, ...) 
@@ -225,14 +225,14 @@ RA <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, optimizer=
                 Constraint2=Constraint2, W_est=W_est, Ly_est=Ly_est,
                 Lx_est=Lx_est, Lambdas=Lambdas, W_SE=W_SE,
                 Ly_SE=Ly_SE, Lx_SE=Lx_SE)  
-    class(out) <- "RA"
+    class(out) <- "RDA"
   
     # options(warn = oldw)
     out
 }
 
-print.RA <- function(x, ...) {
-    if (!is.element("RA", class(x)))
+print.RDA <- function(x, ...) {
+    if (!is.element("RDA", class(x)))
         stop("\"x\" must be an object of class \"RA\".")
 
     cat("Please check the constraints before interpreting the results.\n")

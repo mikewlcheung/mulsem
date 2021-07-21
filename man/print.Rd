@@ -1,16 +1,16 @@
 \name{print}
-\alias{print.RA}
+\alias{print.RDA}
 \title{Print Methods for various Objects 
 }
-\description{Print method for the \code{RA} object.
+\description{Print method for the \code{RDA} object.
 }
 \usage{
-\method{print}{RA}(x, \dots)
+\method{print}{RDA}(x, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{An object returned from the class
-	\code{RA}
+	\code{RDA}
 }
   \item{\dots}{Unused.
 }

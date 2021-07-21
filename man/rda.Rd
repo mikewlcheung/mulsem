@@ -1,5 +1,5 @@
-\name{RA}
-\alias{RA}
+\name{rda}
+\alias{rda}
 \title{Redundancy Analysis
 }
 \description{It conducts a redundancy analysis using the OpenMx package.
@@ -8,7 +8,7 @@
   standardized estimates.
 }
 \usage{
-RA(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, optimizer=TRUE, ...)
+rda(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...)
 }
 \arguments{
   \item{X_vars}{A vector of characters of the X variables.}
@@ -19,11 +19,9 @@ RA(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, optimizer=TRUE, ...)
   \item{numObs}{A sample size if \code{data} is not available.}
   \item{extraTries}{This function uses \code{\link[OpenMx]{mxTryHard}}
 	to obtain the parameter estimates and their standard
-	errors. \code{extraTries} indicates the number of extra runs.}
-  \item{optimizer}{If \code{TRUE}, \code{OpenMx} will activate the
-	optimizer to find the best solution. If \code{FALSE}, \code{OpenMx}
-	will treat the internal starting values as the best solution. }
-  \item{\dots}{Additional arguments sent to either
+	errors. \code{extraTries} indicates the number of extra runs. If
+	\code{extraTries=0}, \code{\link[OpenMx]{mxRun}} is used.}
+   \item{\dots}{Additional arguments sent to either
 	\code{\link[OpenMx]{mxTryHard}} or \code{\link[OpenMx]{mxRun}}.}
 }
 
@@ -37,5 +35,5 @@ RA(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, optimizer=TRUE, ...)
   in redundancy analysis: A direct covariance structure modeling
   approach. \emph{Manuscript in preparation}.
 }  
-\seealso{\code{\link[mulSEM]{Chittum19}}}
+\seealso{\code{\link[mulSEM]{Chittum19}}, \code{\link[mulSEM]{sasv8ch65sec26}}}
 

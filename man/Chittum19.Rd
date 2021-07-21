@@ -26,7 +26,6 @@ Chittum, J. R., Jones, B. D., & Carter, D. M. (2019). A person-centered investig
   approach. \emph{Manuscript in preparation}.
 }
 \examples{
-\dontrun{
 data(Chittum19)
 
 ## Seed for reproducibility
@@ -40,6 +39,6 @@ X_vars <- c("Empowerment", "Usefulness", "Success", "Interest", "Caring")
 Y_vars <- c("Final_Exam", "Learning", "Course_Rating", "Instr_Rating",
             "Effort", "Cog_Engage", "Cost")
 
-RA(X_vars=X_vars, Y_vars=Y_vars, Cov=Chittum19$data, numObs=Chittum19$n)
+rda(X_vars=X_vars, Y_vars=Y_vars, Cov=Chittum19$data, numObs=Chittum19$n)
 }
-}
+
