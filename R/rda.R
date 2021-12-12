@@ -35,8 +35,9 @@ rda <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
       d_s <- d*(d-1)/2
       D_s <- matrix(rep(c(TRUE, FALSE), times=c(p^2-d_s, d_s)), nrow=p, ncol=p)
       
-      ## Fix the last d_s elements to 0
-      ei$vectors[!D_s] <- 0
+      ## Don't fix the last d_s elements to 0
+      ## Use the original estimates
+      ## ei$vectors[!D_s] <- 0
     } else {
       ## All elements are free
       D_s <- matrix(TRUE, nrow=p, ncol=p)
@@ -146,14 +147,15 @@ rda <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
         ## Combine everything to a model
         mx.model <- mxModel("RA", mxdata,
                             qZerop, SD, Iq, Ip, W, W_I, Ryy, Ly, I_R, pOne1, psZero1, Lambdas, 
-                            Lx, q_matrix, expCov, expFun, mxFitFunctionML(), constraint1, constraint2)
+                            Lx, q_matrix, expCov, expFun,
+                            mxFitFunctionML(), constraint1, constraint2)
   
     } else {
       ## Raw data as inputs
-        mxdata <- mxData(observed=data[, c(X_vars, Y_vars)], type="raw" )
+        mxdata <- mxData(observed=data[, c(X_vars, Y_vars)], type="raw")
     
         expMean <- mxMatrix("Full", nrow=1, ncol=p+q, free=TRUE, 
-                            values=apply(data, 2, mean, na.rm=TRUE),
+                            values=apply(data[, c(X_vars, Y_vars)], 2, mean, na.rm=TRUE),
                             labels = c(paste0("mux_", seq_len(p)), paste0("muy_", seq_len(q))),
                             name="expMean")
     
@@ -163,8 +165,8 @@ rda <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
     
         ## Combine everything to a model
         mx.model <- mxModel("RA", mxdata,
-                            qZerop, SD, Iq, Ip, W, W_I, Ryy, Ly, I_R, pOne1, psZero1, 
-                            Lambdas, expMean, Lx, q_matrix, expCov, expFun, 
+                            qZerop, SD, Iq, Ip, W, W_I, Ryy, Ly, I_R, pOne1, psZero1, Lambdas,
+                            Lx, q_matrix, expCov, expFun, expMean, 
                             mxFitFunctionML(), constraint1, constraint2)    
     }
 

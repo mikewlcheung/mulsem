@@ -28,9 +28,6 @@ Chittum, J. R., Jones, B. D., & Carter, D. M. (2019). A person-centered investig
 \examples{
 data(Chittum19)
 
-## Seed for reproducibility
-set.seed(12345)
-
 ## Redundancy Analysis
 ## X variables
 X_vars <- c("Empowerment", "Usefulness", "Success", "Interest", "Caring")

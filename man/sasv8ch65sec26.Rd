@@ -19,9 +19,6 @@
 \examples{
 data(sasv8ch65sec26)
 
-## Seed for reproducibility
-set.seed(12345)
-
 ## Redundancy Analysis
 ## X variables
 X_vars <- c("x1", "x2", "x3", "x4")
