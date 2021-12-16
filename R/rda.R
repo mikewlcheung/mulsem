@@ -113,6 +113,14 @@ rda <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
     ## Lambdas: Equation (7)
     Lambdas <- mxAlgebra(diag2vec(t(Ly) %*% Ly)/q, name="Lambdas")
 
+    ## Matrix for cumulative sum
+    K <- matrix(1, nrow=p, ncol=p)
+    K[upper.tri(K)] <- 0
+    K <- mxMatrix("Full", nrow=p, ncol=p, free=FALSE, values=K, name="K")
+    
+    ## Cumulative sum of Lambdas
+    Lambdas_cum <- mxAlgebra(K %*% Lambdas, name="Lambdas_cum")
+    
     ## Lx: Equation (12)
     Lx <- mxAlgebra(solve(t(W)), name="Lx")
 
@@ -147,7 +155,7 @@ rda <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
         ## Combine everything to a model
         mx.model <- mxModel("RA", mxdata,
                             qZerop, SD, Iq, Ip, W, W_I, Ryy, Ly, I_R, pOne1, psZero1, Lambdas, 
-                            Lx, q_matrix, expCov, expFun,
+                            K, Lambdas_cum, Lx, q_matrix, expCov, expFun,
                             mxFitFunctionML(), constraint1, constraint2)
   
     } else {
@@ -166,8 +174,8 @@ rda <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
         ## Combine everything to a model
         mx.model <- mxModel("RA", mxdata,
                             qZerop, SD, Iq, Ip, W, W_I, Ryy, Ly, I_R, pOne1, psZero1, Lambdas,
-                            Lx, q_matrix, expCov, expFun, expMean, 
-                            mxFitFunctionML(), constraint1, constraint2)    
+                            K, Lambdas_cum, Lx, q_matrix, expCov, expFun, expMean, 
+                            mxFitFunctionML(), constraint1, constraint2)
     }
 
     ## User the starting values as the final estimates.
@@ -209,8 +217,13 @@ rda <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
     dimnames(Lx_est) <- list(X_vars, X_vars)
 
     ## Lambdas
-    Lambdas <- mxEval(Lambdas, mx.fit)
+    Lambdas_est <- mxEval(Lambdas, mx.fit)
+    Lambdas_SE <- suppressMessages(mxSE(Lambdas, mx.fit))
 
+    ## Lambdas cumulative sum
+    Lambdas_cum_est <- mxEval(Lambdas_cum, mx.fit)
+    Lambdas_cum_SE <- suppressMessages(mxSE(Lambdas_cum, mx.fit))  
+    
     ## SE of W matrix
     W_SE <- suppressMessages(mxSE(W, mx.fit))
     dimnames(W_SE) <- list(X_vars, X_vars)
@@ -225,8 +238,9 @@ rda <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
     
     out <- list(mx.fit=mx.fit, mx.model=mx.model, Constraint1=Constraint1,
                 Constraint2=Constraint2, W_est=W_est, Ly_est=Ly_est,
-                Lx_est=Lx_est, Lambdas=Lambdas, W_SE=W_SE,
-                Ly_SE=Ly_SE, Lx_SE=Lx_SE)  
+                Lx_est=Lx_est, Lambdas_est=Lambdas_est, Lambdas_cum_est=Lambdas_cum_est, 
+                W_SE=W_SE, Ly_SE=Ly_SE, Lx_SE=Lx_SE, Lambdas_SE=Lambdas_SE,
+                Lambdas_cum_SE=Lambdas_cum_SE)  
     class(out) <- "RDA"
   
     # options(warn = oldw)
@@ -256,6 +270,13 @@ print.RDA <- function(x, ...) {
     cat("\nLx matrix (SE):\n")
     print(x$Lx_SE)
   
-    cat("\nLambdas:\n")
-    print(x$Lambdas)
+    cat("\nIndividual redundancy:\n")
+    print(x$Lambdas_est)
+    cat("\nIndividual redundancy (SE):\n")
+    print(x$Lambdas_SE)
+
+    cat("\nCumulative redundancy:\n")
+    print(x$Lambdas_cum_est)
+    cat("\nCumulative redundancy (SE):\n")
+    print(x$Lambdas_cum_SE)
 }
