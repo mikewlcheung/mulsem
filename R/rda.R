@@ -23,8 +23,8 @@ rda <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
     tri_prod  <- solve(Rxx) %*% t(Rxy) %*% Rxy
     ei <- eigen(tri_prod)
     ## Take the real parts (if there are complex)
-    ei$values <- Re(ei$values)
-    ei$vectors <- Re(ei$vectors)
+    ## ei$values <- Re(ei$values)
+    ## ei$vectors <- Re(ei$vectors)
     
     ## Check if d=p-q>=2
     d <- p-q
@@ -42,11 +42,12 @@ rda <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
       ## All elements are free
       D_s <- matrix(TRUE, nrow=p, ncol=p)
     }
-    
-    scale <- sqrt(diag(t(ei$vectors) %*% Rxx %*% ei$vectors))
+
+    ## scale is a diagonal matrix
+    scale <- diag(sqrt(diag(t(ei$vectors) %*% Rxx %*% ei$vectors)))
 
     ## Starting values for W
-    start_W <- ei$vectors %*% diag(1/(scale))
+    start_W <- ei$vectors %*% solve(scale)
 
     ## Starting values for Ly
     start_Ly <- Rxy %*% start_W  
