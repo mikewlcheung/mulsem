@@ -1,8 +1,5 @@
 rda <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
-
-    # oldw <- getOption("warn")
-    # options(warn = -1)
-  
+ 
     ## Sample Cov as starting values if raw data are given
     if (!is.null(data)) {
         Cov <- cov(data, use="pairwise.complete.obs")
@@ -22,9 +19,8 @@ rda <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
 
     tri_prod  <- solve(Rxx) %*% t(Rxy) %*% Rxy
     ei <- eigen(tri_prod)
-    ## Take the real parts (if there are complex)
-    ## ei$values <- Re(ei$values)
-    ## ei$vectors <- Re(ei$vectors)
+    ## Take the real part of the eigenvectors (if there are complex)
+    vec <- Re(ei$vectors)
     
     ## Check if d=p-q>=2
     d <- p-q
@@ -36,7 +32,7 @@ rda <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
       D_s <- matrix(rep(c(TRUE, FALSE), times=c(p^2-d_s, d_s)), nrow=p, ncol=p)
       
       ## Don't fix the last d_s elements to 0
-      ## Use the original estimates
+      ## Use the original starting values
       ## ei$vectors[!D_s] <- 0
     } else {
       ## All elements are free
@@ -44,17 +40,15 @@ rda <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
     }
 
     ## scale is a diagonal matrix
-    scale <- diag(sqrt(diag(t(ei$vectors) %*% Rxx %*% ei$vectors)))
+    ## scale <- diag(sqrt(diag(t(vec) %*% Rxx %*% vec)))
+    ## start_W <- vec %*% solve(scale)
 
-    ## Starting values for W
-    start_W <- ei$vectors %*% solve(scale)
+    ## Starting values for W    
+    scale <- sqrt(diag(t(vec) %*% Rxx %*% vec))
+    start_W <- vec %*% diag(1/(scale))   
 
     ## Starting values for Ly
     start_Ly <- Rxy %*% start_W  
-     
-    ## Add a bit noise to the starting values
-    ## start_W <- start_W + matrix(runif(p*p, min=-0.2, max=0.2), nrow=p, ncol=p)
-    ## start_Ly <- start_Ly + matrix(runif(p*q, min=-0.2, max=.2), nrow=q, ncol=p)
   
     ## Standard deviations of X and Y
     SD <- mxMatrix("Diag", nrow=(p+q), ncol=(p+q), free=TRUE, 
@@ -71,14 +65,13 @@ rda <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
 
     ## W matrix with random starting values
     W <- mxMatrix("Full", nrow=p, ncol=p, free=D_s,
-                  #values=rnorm(p*p, mean=0.3, sd=0.1),
                   values=start_W,
                   labels=outer(1:p, 1:p, function(x, y) paste0("W", x, "_", y)),
                   name="W")
 
     ## Block diagonal matrix of W and I
     W_I <- mxAlgebra(rbind(cbind(solve(t(W)), t(qZerop)),
-                         cbind(qZerop, Iq)), name="W_I")
+                           cbind(qZerop, Iq)), name="W_I")
 
     ## Ryy
     Ryy <- mxMatrix("Stand", nrow=q, ncol=q, free=TRUE,
@@ -92,8 +85,6 @@ rda <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
         Ly <- mxMatrix("Full", nrow=q, ncol=p,
                        free=cbind(matrix(TRUE, nrow=q, ncol=q), 
                                   matrix(FALSE, nrow=q, ncol=(p-q))),
-                       #values=cbind(matrix(rnorm(q*q, mean=0.3, sd=0.1), nrow=q, ncol=q), 
-                       #             matrix(0, nrow=q, ncol=(p-q))),
                        values=cbind(matrix(start_Ly[1:q, 1:q], nrow=q, ncol=q), 
                                     matrix(0, nrow=q, ncol=(p-q))),
                        labels=outer(1:q, 1:p, function(x, y) paste0("Ly", x, "_", y)),
@@ -102,7 +93,6 @@ rda <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
         ## Ly when p <= q
         Ly <- mxMatrix("Full", nrow=q, ncol=p,
                        free=TRUE,
-                       #values=rnorm(p*q, mean=0.2, sd=0.1),
                        values=start_Ly,
                        labels=outer(1:q, 1:p, function(x, y) paste0("Ly", x, "_", y)),
                        name="Ly")
