@@ -20,11 +20,7 @@
 data(sasv8ch20sec20)
 
 ## Canonical Correlation Analysis
-## X variables
-X_vars <- c("Weight", "Waist", "Pulse")
-
-## Y variables
-Y_vars <- c("Chins", "Situps", "Jumps")
-
-cancorr(X_vars=X_vars, Y_vars=Y_vars, data=sasv8ch20sec20)
+cancorr(X_vars=c("Weight", "Waist", "Pulse"),
+        Y_vars=c("Chins", "Situps", "Jumps"),
+        data=sasv8ch20sec20)
 }

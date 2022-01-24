@@ -20,11 +20,7 @@
 data(sasv8ch65sec26)
 
 ## Redundancy Analysis
-## X variables
-X_vars <- c("x1", "x2", "x3", "x4")
-
-## Y variables
-Y_vars <- c("y1", "y2", "y3")
-
-rda(X_vars=X_vars, Y_vars=Y_vars, data=sasv8ch65sec26)
+rda(X_vars=c("x1", "x2", "x3", "x4"),
+    Y_vars=c("y1", "y2", "y3"),
+    data=sasv8ch65sec26)
 }

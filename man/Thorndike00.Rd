@@ -30,14 +30,10 @@ Gu, F., Yung, Y.-F., & Cheung, M. W.-L. (2019). Four covariance structure models
 data(Thorndike00)
 
 ## Canonical Correlation Analysis
-## Note. cancorr() expects that X_vars cannot have more variables than Y_vars.
+## Note. We swap the X_vars and Y_vars because cancorr() expects that X_vars cannot have more variables than Y_vars.
 
-## X variables
-X_vars <- c("y1", "y2", "y3", "y4", "y5")
-
-## Y variables
-Y_vars <- c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8")
-
-cancorr(X_vars=X_vars, Y_vars=Y_vars, Cov=Thorndike00$data, numObs=Thorndike00$n)
+cancorr(X_vars=c("y1", "y2", "y3", "y4", "y5"),
+        Y_vars=c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8"),
+        Cov=Thorndike00$data, numObs=Thorndike00$n)
 }
 

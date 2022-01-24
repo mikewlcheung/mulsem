@@ -29,13 +29,9 @@ Chittum, J. R., Jones, B. D., & Carter, D. M. (2019). A person-centered investig
 data(Chittum19)
 
 ## Redundancy Analysis
-## X variables
-X_vars <- c("Empowerment", "Usefulness", "Success", "Interest", "Caring")
-
-## Y variables
-Y_vars <- c("Final_Exam", "Learning", "Course_Rating", "Instr_Rating",
-            "Effort", "Cog_Engage", "Cost")
-
-rda(X_vars=X_vars, Y_vars=Y_vars, Cov=Chittum19$data, numObs=Chittum19$n)
+rda(X_vars=c("Empowerment", "Usefulness", "Success", "Interest", "Caring"),
+    Y_vars=c("Final_Exam", "Learning", "Course_Rating", "Instr_Rating",
+             "Effort", "Cog_Engage", "Cost"),
+    Cov=Chittum19$data, numObs=Chittum19$n)
 }
 
