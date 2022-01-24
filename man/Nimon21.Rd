@@ -13,7 +13,7 @@ A data frame of 13 variables.
 }
 
 \source{
-  Nimon, K., Joo, B.-K. (Brian), & Bontrager, M. (2021). Work cognitions and work intentions: A canonical correlation study. \emph{Human Resource Development International}, \bold{24}(1), 65–91. https://doi.org/10.1080/13678868.2020.1775038
+  Nimon, K., Joo, B.-K. (Brian), & Bontrager, M. (2021). Work cognitions and work intentions: A canonical correlation study. \emph{Human Resource Development International}, \bold{24}(1), 65-91. https://doi.org/10.1080/13678868.2020.1775038
 }
 \references{
   Gu, F., Yung, Y.-F., & Cheung, M. W.-L. (2021). Statistical inference

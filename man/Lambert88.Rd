@@ -14,7 +14,7 @@ A 9x9 correlation matrix.
 }
 
 \source{
-Lambert, Z. V., Wildt, A. R., & Durand, R. M. (1988). Redundancy analysis: An alternative to canonical correlation and multivariate multiple regression in exploring interset associations. \emph{Psychological Bulletin}, \bold{104}(2), 282–289. https://doi.org/10.1037/0033-2909.104.2.282
+Lambert, Z. V., Wildt, A. R., & Durand, R. M. (1988). Redundancy analysis: An alternative to canonical correlation and multivariate multiple regression in exploring interset associations. \emph{Psychological Bulletin}, \bold{104}(2), 282-289. https://doi.org/10.1037/0033-2909.104.2.282
 }
 \references{
   Gu, F., Yung, Y.-F., & Cheung, M. W.-L. (2021). Statistical inference
