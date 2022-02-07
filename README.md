@@ -9,4 +9,16 @@ The developmental version can be installed from GitHub by:
 # install.packages("remotes")
 
 remotes::install_github("mikewlcheung/mulsem")
+
+library(mulSEM)
+
+## Canonical Correlation Analysis
+cancorr(X_vars=c("Weight", "Waist", "Pulse"),
+        Y_vars=c("Chins", "Situps", "Jumps"),
+        data=sasv8ch20sec20)
+
+## Redundancy Analysis
+rda(X_vars=c("x1", "x2", "x3", "x4"),
+    Y_vars=c("y1", "y2", "y3"),
+    data=sasv8ch65sec26)
 ```
