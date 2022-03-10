@@ -33,7 +33,7 @@ mpcr(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, model=c("COV", "COR"), 
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
 \references{
-  Gu, F., Yung, Y.-F., & Cheung, M. W.-L. (2022). Standard error
+  Gu, F., & Cheung, M. W.-L. (2022). Standard error
   estimates for unstandardized regression coefficients in multivariate
   principal component regression. \emph{Manuscript in preparation}.
 }  
