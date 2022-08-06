@@ -1,13 +1,12 @@
 \name{mpcr}
 \alias{mpcr}
-\title{Multivariate Principal Component Regression
+\title{Multivariate Principal Component Regression (MPCR)
 }
 \description{It conducts a multivariate principal component regression analysis using the OpenMx package. Missing data are handled with the full information maximum likelihood
-  method when raw data are available. It provides standard errors on the
-  estimates.
+  method when raw data are available. It provides standard errors on the estimates.
 }
 \usage{
-mpcr(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, model=c("COV", "COR"), extraTries=50, ...)
+mpcr(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, pca=c("COV", "COR"), extraTries=50, ...)
 }
 \arguments{
   \item{X_vars}{A vector of characters of the X variables.}
@@ -17,8 +16,8 @@ mpcr(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, model=c("COV", "COR"), 
 	available.}
   \item{Means}{An optional mean vector if \code{data} is not available.}
   \item{numObs}{A sample size if \code{data} is not available.}
-  \item{model}{Whether the analysis is based unstandardized \code{COV}
-	or standardized \code{COR}.}
+  \item{pca}{Whether the principal component analysis is based unstandardized \code{COV}
+	or standardized \code{COR} variables.}
   \item{extraTries}{This function calls \code{\link[OpenMx]{mxTryHard}}
 	to obtain the parameter estimates and their standard
 	errors. \code{extraTries} indicates the number of extra runs. If
@@ -33,9 +32,9 @@ mpcr(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, model=c("COV", "COR"), 
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
 \references{
-  Gu, F., & Cheung, M. W.-L. (2022). Standard error
-  estimates for unstandardized regression coefficients in multivariate
-  principal component regression. \emph{Manuscript in preparation}.
+  Gu, F., & Cheung, M. W.-L. (2022). A Model-based approach to
+  multivariate principal component regression: Selection of principal components and standard error estimates for
+unstandardized regression coefficients. \emph{Manuscript in preparation}.
 }  
 
 

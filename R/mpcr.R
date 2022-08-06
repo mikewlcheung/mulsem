@@ -1,7 +1,7 @@
-mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, model=c("COV", "COR"),
+mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, pca=c("COV", "COR"),
                  extraTries=50, ...) {
 
-    model <- match.arg(model)
+    pca <- match.arg(pca)
 
     ## Whether the means are given
     if (!is.null(data) | !is.null(Means)) {
@@ -29,9 +29,8 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, model=c("CO
     ## No. of Y variables
     q <- length(Y_vars)
 
-
     ## Starting values of eigen values decomposition on either COV or COR
-    if (model=="COV") {
+    if (pca=="COV") {
         S <- Cov        
     } else {
         ## Correlation structure
@@ -52,6 +51,9 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, model=c("CO
 
     ## A pxp identity matrix
     Ip <- mxMatrix(type="Iden", nrow=p, ncol=p, name="Ip")
+
+    ## A 1xp matrix of ones
+    Oneq <- mxMatrix(type="Unit", nrow=q, ncol=1, name="Oneq")
      
     ## Constraint on V
     constraint1 <- mxConstraint(vech(V%*%t(V)) == vech(Ip), name="constraint1")
@@ -60,7 +62,7 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, model=c("CO
                   labels=outer(seq_len(p), seq_len(q), function(x, y) paste0("h", x, "_", y)),
                   name="H")
 
-    if (model=="COV") {
+    if (pca=="COV") {
         Psi <- mxMatrix(type="Symm", nrow=q, ncol=q, free=TRUE, values=vech(Cov[Y_vars, Y_vars]),
                         labels=vech(outer(seq_len(q), seq_len(q), function(x, y) paste0("psi", x, "_", y))),
                         name="Psi")
@@ -83,7 +85,7 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, model=c("CO
         }
 
         ## Further adjustment if it is correlation structure
-        if (model=="COV") {
+        if (pca=="COV") {
             Alpha_start <- solve(eig$vectors) %*% X_means
         } else {            
             Alpha_start <- solve(eig$vectors) %*% (X_means/sqrt(diag(Cov[X_vars, X_vars])))
@@ -98,14 +100,15 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, model=c("CO
     }
 
 
-    if (model=="COV") {            
-        ## Covariance structure
+    if (pca=="COV") {            
+        ## Covariance structure: Equation 3
         expCov <- mxAlgebra( rbind(cbind(V %*% Lambda %*% t(V), V %*% t(H)),
                                    cbind(H %*% t(V), Psi)), name="expCov" )
 
         ## With mean structure
         if (mean.structure) {
-            
+
+            ## Equation 3
             expMean <- mxAlgebra(cbind(t(V %*% Alpha), t(Tau)), name="expMean")
             
             ## Expected covariance in the fit function
@@ -113,7 +116,7 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, model=c("CO
                                           dimnames=c(X_vars, Y_vars))    
     
             ## Combine everything to a model
-            mx.model <- mxModel("MPCR", mxdata, Lambda, V, H, Psi, Alpha, Tau, Ip,
+            mx.model <- mxModel("MPCR", mxdata, Lambda, V, H, Psi, Alpha, Tau, Ip, Oneq,
                                 constraint1, expCov, expMean, expFun, mxFitFunctionML())
         } else {
             ## No mean structure
@@ -121,7 +124,7 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, model=c("CO
             expFun <- mxExpectationNormal(covariance="expCov", dimnames=c(X_vars, Y_vars))    
     
             ## Combine everything to a model
-            mx.model <- mxModel("MPCR", mxdata, Lambda, V, H, Psi, Ip,
+            mx.model <- mxModel("MPCR", mxdata, Lambda, V, H, Psi, Ip, Oneq,
                                 constraint1, expCov, expFun, mxFitFunctionML())
         }        
     } else {
@@ -143,6 +146,7 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, model=c("CO
         ##                values=sqrt(diag(Cov[c(X_vars, Y_vars), c(X_vars, Y_vars)])), 
         ##                labels=c(paste0("sdx", 1:p), paste0("sdy", 1:q)),  name="SD")
 
+        ## Equation 4
         expCov <- mxAlgebra( SD %&% rbind(cbind(V%*%Lambda%*%t(V), V%*%t(H)),
                                           cbind(H%*%t(V), Psi)), name="expCov" )
 
@@ -151,7 +155,8 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, model=c("CO
         
         ## With mean structure
         if (mean.structure) {
-            
+
+            ## Equation 4
             expMean <- mxAlgebra(t(SD %*% rbind(V %*% Alpha, Tau)), name="expMean")
             
             ## Expected covariance in the fit function
@@ -159,7 +164,7 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, model=c("CO
                                           dimnames=c(X_vars, Y_vars))    
     
             ## Combine everything to a model
-            mx.model <- mxModel("MPCR", mxdata, Lambda, V, H, Psi, Alpha, Tau, Ip, SD, SDx, SDy,
+            mx.model <- mxModel("MPCR", mxdata, Lambda, V, H, Psi, Alpha, Tau, Ip, Oneq, SD, SDx, SDy,
                                 pZeroq, constraint1, constraint2, expCov, expMean, expFun,
                                 mxFitFunctionML())
         } else {
@@ -167,27 +172,45 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, model=c("CO
             expFun <- mxExpectationNormal(covariance="expCov", dimnames=c(X_vars, Y_vars))    
     
             ## Combine everything to a model
-            mx.model <- mxModel("MPCR", mxdata, Lambda, V, H, Psi, Ip, SD, SDx, SDy,
+            mx.model <- mxModel("MPCR", mxdata, Lambda, V, H, Psi, Ip, Oneq, SD, SDx, SDy,
                                 pZeroq, constraint1, constraint2, expCov, expMean, expFun,
                                 mxFitFunctionML())
         }
     }
 
     ## ## Prediction equations
-    if (model=="COV") {
-        ## Equations 6 and 7
-        B_unstand <- mxAlgebra(V %*% solve(Lambda) %*% t(H), name="B_unstand")
+    if (pca=="COV") {
+        ## Equation 5
+        J <- mxAlgebra( chol(solve(vec2diag(diag2vec(Psi)))) %*% H %*%
+                        chol(solve(vec2diag(diag2vec(Lambda)))), name="J")
+        pi <- mxAlgebra( (t(J*J) %*% solve(vec2diag(diag2vec(Psi))) %*% Oneq) / tr(Psi), name="pi") 
+        ## Equation 7
+        B_unstand <- mxAlgebra( V %*% solve(Lambda) %*% t(H), name="B_unstand")
         ## beta0 <- mxAlgebra(Tau - B_unstand %*% V %*% Alpha, name="beta0")
-        beta0 <- mxAlgebra(Tau - t(B_unstand) %*% V %*% Alpha, name="beta0")
+        ## Equation 8
+        beta0 <- mxAlgebra( Tau - t(B_unstand) %*% V %*% Alpha, name="beta0")
     } else {
-        ## Equations 10 and 11
-        B_unstand <- mxAlgebra(solve(SDx) %*% (V %*% solve(Lambda) %*%
-                               t(H)) %*% SDy, name="B_unstand")
+        ## Equation 9
+        J <- mxAlgebra( H %*% chol(solve(vec2diag(diag2vec(Lambda)))), name="J")
+        pi <- mxAlgebra( (t(J*J) %*% Oneq) / tr(Psi), name="pi") 
+        ## Equation 12
+        B_unstand <- mxAlgebra( solve(SDx) %*% (V %*% solve(Lambda) %*%
+                                                t(H)) %*% SDy, name="B_unstand")
         ## beta0 <- mxAlgebra(SD[y_vars, y_vars] %*% Tau - B_unstand %*% SD[x_vars, x_vars] %*%
         ##                    V %*% Alpha, name="beta0")
-        beta0 <- mxAlgebra(SDy %*% Tau - t(B_unstand) %*% SDx %*% V %*% Alpha, name="beta0")
+        ## Equation 13
+        beta0 <- mxAlgebra( SDy %*% Tau - t(B_unstand) %*% SDx %*% V %*% Alpha, name="beta0")
     }
-    mx.model <- mxModel(mx.model, B_unstand, beta0)
+
+    ## Matrix for cumulative sum
+    K <- matrix(1, nrow=p, ncol=p)
+    K[upper.tri(K)] <- 0
+    K <- mxMatrix("Full", nrow=p, ncol=p, free=FALSE, values=K, name="K")
+    
+    ## Cumulative sum of pis
+    pi_cum <- mxAlgebra(K %*% pi, name="pi_cum")
+    
+    mx.model <- mxModel(mx.model, J, pi, K, pi_cum, B_unstand, beta0)
   
     if (extraTries==0) {
         mx.fit <- suppressMessages(mxRun(mx.model, ...))
@@ -205,7 +228,9 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, model=c("CO
     ## Diagonals should be 1
     Constraint2 <- c(mxEval(diag2vec(V %&% Lambda), mx.fit))
 
+    ## Labels for PCs
     PC_vars <- paste0("PC", seq_len(length(X_vars)))
+    PC_cum_vars <- paste0("Sum to PC", seq_len(length(X_vars)))
     
     ## V matrix
     V_est <- mxEval(V, mx.fit)
@@ -227,7 +252,23 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, model=c("CO
     Psi_SE <- suppressMessages(mxSE(Psi, mx.fit))
     dimnames(Psi_est) <- dimnames(Psi_SE) <- list(Y_vars, Y_vars)
 
-    if (model=="COR") {
+    ## pi matrix
+    pi_est <- mxEval(pi, mx.fit)
+    pi_SE <- suppressMessages(mxSE(pi, mx.fit))
+    pi_lci <- pi_est - 1.96*pi_SE
+    pi_uci <- pi_est + 1.96*pi_SE
+    pi <- cbind(pi_est, pi_SE, pi_lci, pi_uci)
+    dimnames(pi) <- list(PC_vars, c("Estimate", "SE", "Lower 95% CI", "Upper 95% CI"))
+
+    ## Cumulative pi matrix
+    pi_cum_est <- mxEval(pi_cum, mx.fit)
+    pi_cum_SE <- suppressMessages(mxSE(pi_cum, mx.fit))
+    pi_cum_lci <- pi_cum_est - 1.96*pi_cum_SE
+    pi_cum_uci <- pi_cum_est + 1.96*pi_cum_SE
+    pi_cum <- cbind(pi_cum_est, pi_cum_SE, pi_cum_lci, pi_cum_uci)
+    dimnames(pi_cum) <- list(PC_cum_vars, c("Estimate", "SE", "Lower 95% CI", "Upper 95% CI"))
+    
+    if (pca=="COR") {
         Dx_est <- mxEval(SDx, mx.fit)
         Dx_SE <- suppressMessages(mxSE(SDx, mx.fit))
         dimnames(Dx_est) <- dimnames(Dx_SE) <- list(X_vars, X_vars)
@@ -262,35 +303,7 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, model=c("CO
     beta0_est <- mxEval(t(beta0), mx.fit)
     beta0_SE <- suppressMessages(mxSE(t(beta0), mx.fit))
     colnames(beta0_est) <- colnames(beta0_SE) <- Y_vars    
-    
-    ## ## Prediction equations
-    ## if (model=="COV") {
-    ##     ## Equations 6 and 7
-    ##     B_unstand <- mxEval(V %*% solve(Lambda) %*% t(H), mx.fit)
-    ##     beta0 <- mxEval(Tau - V %*% solve(Lambda) %*% t(H) %*% V %*% Alpha, mx.fit)
-
-    ##     B_unstandSE <- suppressMessages(mxSE(V %*% solve(Lambda) %*% t(H), mx.fit))
-    ##     beta0SE <- suppressMessages(mxSE(Tau - V %*% solve(Lambda) %*% t(H) %*% V %*% Alpha,
-    ##                                      mx.fit))
-    ## } else {
-    ##     ## Equations 10 and 11
-    ##     x_vars <- seq_len(p)
-    ##     y_vars <- seq(from=p+1, to=p+q)
-    ##     B_unstand <- mxEval(solve(SD[x_vars, x_vars]) %*% (V %*% solve(Lambda) %*%
-    ##                                                        t(H)) %*% SD[y_vars, y_vars], mx.fit)
-    ##     beta0 <- mxEval(SD[y_vars, y_vars] %*% Tau - 
-    ##                     (solve(SD[x_vars, x_vars]) %*% (V %*% solve(Lambda) %*%
-    ##                                                     t(H)) %*% SD[y_vars, y_vars]) %*%
-    ##                     SD[x_vars, x_vars] %*% V %*% Alpha, mx.fit)
-        
-    ##     B_unstandSE <- suppressMessages(mxSE(solve(SD[x_vars, x_vars]) %*% (V %*% solve(Lambda) %*%
-    ##                                                                         t(H)) %*% SD[y_vars, y_vars], mx.fit))
-    ##     beta0SE <- suppressMessages(mxSE(SD[y_vars, y_vars] %*% Tau - 
-    ##                     (solve(SD[x_vars, x_vars]) %*% (V %*% solve(Lambda) %*%
-    ##                                                     t(H)) %*% SD[y_vars, y_vars]) %*%
-    ##                     SD[x_vars, x_vars] %*% V %*% Alpha, mx.fit))        
-    ## }
-        
+           
     out <- list(mx.fit=mx.fit, mx.model=mx.model, Constraint1=Constraint1,
                 Constraint2=Constraint2, V_est=V_est, Lambda_est=Lambda_est,
                 H_est=H_est, Psi_est=Psi_est, Alpha_est=Alpha_est,
@@ -298,10 +311,9 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, model=c("CO
                 V_SE=V_SE, Lambda_SE=Lambda_SE, H_SE=H_SE, Psi_SE=Psi_SE,
                 Alpha_SE=Alpha_SE, Tau_SE=Tau_SE, Dx_SE=Dx_SE, Dy_SE=Dy_SE,
                 B_unstand_est=B_unstand_est, B_unstand_SE=B_unstand_SE,
-                beta0_est=beta0_est, beta0_SE=beta0_SE, model=model)
+                beta0_est=beta0_est, beta0_SE=beta0_SE, pi=pi, pi_cum=pi_cum, pca=pca)
 
-    class(out) <- "MPCR"
-  
+    class(out) <- "MPCR"  
     out
 }
 
@@ -309,15 +321,15 @@ print.MPCR <- function(x, ...) {
     if (!is.element("MPCR", class(x)))
         stop("\"x\" must be an object of class \"MPCR\".")
 
-    if (x$model=="COV") {
-        cat("\nAnalysis: covariance matrix.\n")
+    if (x$pca=="COV") {
+        cat("\nPCA: Analysis of covariance matrix.\n")
     } else {
-        cat("\nAnalysis: correlation matrix.\n")
+        cat("\nPCA: Analysis of correlation matrix.\n")
     }
     
-    cat("Please check the constraints before interpreting the results.\n")
-    cat("Constraint 1: The followings should be either 0 or 1: ", x$Constraint1, ".\n")
-    if (x$model=="COR") cat("Constraint 2: The followings should be 1: ", x$Constraint2, ".\n")
+    cat("Please check the constraints before interpreting the results.\n\n")
+    cat("Constraint 1: The followings should be either 0 or 1:\n", x$Constraint1, "\n\n")
+    if (x$pca=="COR") cat("Constraint 2: The followings should be 1: ", x$Constraint2, ".\n")
   
     cat("\nV matrix:\n")
     print(x$V_est)
@@ -338,6 +350,13 @@ print.MPCR <- function(x, ...) {
     print(x$Psi_est)
     cat("\nPsi matrix (SE):\n")
     print(x$Psi_SE)
+    
+    if (!is.null(x$Alpha_est)) {
+        cat("\nAlpha vector:\n")
+        print(x$Alpha_est)
+        cat("\nAlpha vector (SE):\n")
+        print(x$Alpha_SE)      
+    }
 
     if (!is.null(x$Dx_est)) {
         cat("\nDx matrix:\n")
@@ -351,13 +370,6 @@ print.MPCR <- function(x, ...) {
         print(x$Dy_est)
         cat("\nDy matrix (SE):\n")
         print(x$Dy_SE)      
-    }
-    
-    if (!is.null(x$Alpha_est)) {
-        cat("\nAlpha matrix:\n")
-        print(x$Alpha_est)
-        cat("\nAlpha matrix (SE):\n")
-        print(x$Alpha_SE)      
     }
         
     if (!is.null(x$Tau_est)) {
@@ -375,5 +387,11 @@ print.MPCR <- function(x, ...) {
     cat("\nB_unstand matrix:\n")
     print(x$B_unstand_est)
     cat("\nB_unstand matrix (SE):\n")
-    print(x$B_unstand_SE)    
+    print(x$B_unstand_SE)
+
+    cat("\npi vector:\n")
+    print(x$pi)
+
+    cat("\nCumulative pi vector:\n")
+    print(x$pi_cum)     
 }
