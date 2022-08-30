@@ -266,7 +266,7 @@ cancorr <- function(X_vars, Y_vars, data=NULL, Cov, numObs,
     out
 }
 
-print.CanCorr <- function(x, ...) {
+print.CanCorr <- function(x, digits=4, ...) {
     if (!is.element("CanCorr", class(x)))
         stop("\"x\" must be an object of class \"CanCorr\".")
 
@@ -278,25 +278,25 @@ print.CanCorr <- function(x, ...) {
     }
       
     cat("\nA1 matrix (X_vars):\n")
-    print(x$A1_est)
+    .mprint(x$A1_est, digits=digits)
     cat("\nA1 matrix (SE):\n")
-    print(x$A1_SE)
+    .mprint(x$A1_SE, digits=digits)
   
     cat("\nA2 matrix (Y_vas):\n")
-    print(x$A2_est)
+    .mprint(x$A2_est, digits=digits)
     cat("\nA2 matrix (SE):\n")
-    print(x$A2_SE)
+    .mprint(x$A2_SE, digits=digits)
 
     if (!is.null(x$A3_est)) {
          cat("\nA3 matrix:\n")
-         print(x$A3_est)
+         .mprint(x$A3_est, digits=digits)
          cat("\nA3 matrix (SE):\n")
-         print(x$A3_SE)  
+         .mprint(x$A3_SE, digits=digits)  
     }
      
     cat("\nLambdas:\n")
-    print(x$Lambdas_est)
+    .mprint(x$Lambdas_est, digits=digits)
     
     cat("\nLambdas (SE):\n")
-    print(x$Lambdas_SE)    
+    .mprint(x$Lambdas_SE, digits=digits)   
 }

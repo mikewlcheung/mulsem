@@ -1,8 +1,16 @@
+.mprint <- function(x, digits=4) print(round(x, digits), digits=digits)
+
 mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, pca=c("COV", "COR"),
-                 extraTries=50, ...) {
+                 pc_select=NULL, extraTries=50, ...) {
 
     pca <- match.arg(pca)
-
+    
+    ## Some simple check on pc_select
+    if (is.null(pc_select)) stop("Please indicate which PCs you want to use in the multiple regression analysis, e.g., 'pc_select=c(1,2)' to use the first two PCs.\n")    
+    pc_select <- sort(pc_select)
+    if (!all(pc_select %in% seq_along(X_vars))) stop("The PC selected must be in: ", seq_along(X_vars), ".\n") 
+    if (length(pc_select) != length(unique(pc_select))) stop("Some of the PC are repeated.\n")
+    
     ## Whether the means are given
     if (!is.null(data) | !is.null(Means)) {
         mean.structure <- TRUE
@@ -131,16 +139,16 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, pca=c("COV"
         ## Correlation structure
         
         ## Standard deviations of X and Y
-        SDx <- mxMatrix("Diag", nrow=p, ncol=p, free=TRUE, values=sqrt(diag(Cov[X_vars, X_vars])), 
-                        labels=paste0("sdx", 1:p),  name="SDx")
+        Dx <- mxMatrix("Diag", nrow=p, ncol=p, free=TRUE, values=sqrt(diag(Cov[X_vars, X_vars])), 
+                        labels=paste0("sdx", 1:p),  name="Dx")
 
-        SDy <- mxMatrix("Diag", nrow=q, ncol=q, free=TRUE, values=sqrt(diag(Cov[Y_vars, Y_vars])), 
-                         labels=paste0("sdy", 1:q),  name="SDy")
+        Dy <- mxMatrix("Diag", nrow=q, ncol=q, free=TRUE, values=sqrt(diag(Cov[Y_vars, Y_vars])), 
+                         labels=paste0("sdy", 1:q),  name="Dy")
 
         pZeroq <- mxMatrix("Full", nrow=p, ncol=q, free=FALSE, name="pZeroq")
 
-        SD <- mxAlgebra( rbind(cbind(SDx, pZeroq),
-                               cbind(t(pZeroq), SDy)), name="SD")
+        SD <- mxAlgebra( rbind(cbind(Dx, pZeroq),
+                               cbind(t(pZeroq), Dy)), name="SD")
         
         ## SD <- mxMatrix("Diag", nrow=(p+q), ncol=(p+q), free=TRUE, 
         ##                values=sqrt(diag(Cov[c(X_vars, Y_vars), c(X_vars, Y_vars)])), 
@@ -164,7 +172,7 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, pca=c("COV"
                                           dimnames=c(X_vars, Y_vars))    
     
             ## Combine everything to a model
-            mx.model <- mxModel("MPCR", mxdata, Lambda, V, H, Psi, Alpha, Tau, Ip, Oneq, SD, SDx, SDy,
+            mx.model <- mxModel("MPCR", mxdata, Lambda, V, H, Psi, Alpha, Tau, Ip, Oneq, SD, Dx, Dy,
                                 pZeroq, constraint1, constraint2, expCov, expMean, expFun,
                                 mxFitFunctionML())
         } else {
@@ -172,34 +180,41 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, pca=c("COV"
             expFun <- mxExpectationNormal(covariance="expCov", dimnames=c(X_vars, Y_vars))    
     
             ## Combine everything to a model
-            mx.model <- mxModel("MPCR", mxdata, Lambda, V, H, Psi, Ip, Oneq, SD, SDx, SDy,
+            mx.model <- mxModel("MPCR", mxdata, Lambda, V, H, Psi, Ip, Oneq, SD, Dx, Dy,
                                 pZeroq, constraint1, constraint2, expCov, expMean, expFun,
                                 mxFitFunctionML())
         }
     }
 
+    ## Selection matrix: pxm
+    Fpm  <- mxMatrix("Full", nrow=length(X_vars), ncol=length(pc_select), free=FALSE,
+                     values=diag(length(X_vars))[, pc_select], name="Fpm")
+    
     ## ## Prediction equations
     if (pca=="COV") {
         ## Equation 5
         J <- mxAlgebra( chol(solve(vec2diag(diag2vec(Psi)))) %*% H %*%
                         chol(solve(vec2diag(diag2vec(Lambda)))), name="J")
         pi <- mxAlgebra( (t(J*J) %*% solve(vec2diag(diag2vec(Psi))) %*% Oneq) / tr(Psi), name="pi") 
-        ## Equation 7
-        B_unstand <- mxAlgebra( V %*% solve(Lambda) %*% t(H), name="B_unstand")
-        ## beta0 <- mxAlgebra(Tau - B_unstand %*% V %*% Alpha, name="beta0")
+        ## Equation 7, V: pxm, Lambda: mxm, H: qxm
+        B_unstand <- mxAlgebra( V%*%Fpm %*% solve(t(Fpm)%&%Lambda) %*%
+                                t(H%*%Fpm), name="B_unstand")
         ## Equation 8
         beta0 <- mxAlgebra( Tau - t(B_unstand) %*% V %*% Alpha, name="beta0")
     } else {
         ## Equation 9
         J <- mxAlgebra( H %*% chol(solve(vec2diag(diag2vec(Lambda)))), name="J")
         pi <- mxAlgebra( (t(J*J) %*% Oneq) / tr(Psi), name="pi") 
-        ## Equation 12
-        B_unstand <- mxAlgebra( solve(SDx) %*% (V %*% solve(Lambda) %*%
-                                                t(H)) %*% SDy, name="B_unstand")
-        ## beta0 <- mxAlgebra(SD[y_vars, y_vars] %*% Tau - B_unstand %*% SD[x_vars, x_vars] %*%
-        ##                    V %*% Alpha, name="beta0")
+        ## Equation 12, V: pxm, Lambda: mxm, H: qxm
+        ## B_unstand <- mxAlgebra( solve(Dx) %*% V[, pc_select] %*% solve(Lambda[pc_select, pc_select]) %*% t(H[, pc_select]) %*% Dy,
+        ##                        name="B_unstand")
+        B_unstand <- mxAlgebra( solve(Dx) %*% V%*%Fpm %*% solve(t(Fpm)%&%Lambda) %*%
+                                t(H%*%Fpm) %*% Dy, name="B_unstand")
         ## Equation 13
-        beta0 <- mxAlgebra( SDy %*% Tau - t(B_unstand) %*% SDx %*% V %*% Alpha, name="beta0")
+        ## beta0 <- mxAlgebra( Dy %*% Tau - Dy %*% H[, pc_select] %*% solve(Lambda[pc_select, pc_select]) %*% t(V[, pc_select]) %*% V %*% Alpha,
+        ##                    name="beta0")
+        beta0 <- mxAlgebra( Dy %*% Tau - Dy %*% H%*%Fpm %*% solve(t(Fpm)%&%Lambda) %*%
+                            t(V%*%Fpm) %*% V %*% Alpha, name="beta0")        
     }
 
     ## Matrix for cumulative sum
@@ -210,7 +225,7 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, pca=c("COV"
     ## Cumulative sum of pis
     pi_cum <- mxAlgebra(K %*% pi, name="pi_cum")
     
-    mx.model <- mxModel(mx.model, J, pi, K, pi_cum, B_unstand, beta0)
+    mx.model <- mxModel(mx.model, J, pi, K, pi_cum, B_unstand, beta0, Fpm)
   
     if (extraTries==0) {
         mx.fit <- suppressMessages(mxRun(mx.model, ...))
@@ -235,7 +250,7 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, pca=c("COV"
     ## V matrix
     V_est <- mxEval(V, mx.fit)
     V_SE <- suppressMessages(mxSE(V, mx.fit))
-    dimnames(V_est) <- dimnames(V_SE) <- list(PC_vars, PC_vars)
+    dimnames(V_est) <- dimnames(V_SE) <- list(X_vars, PC_vars)
     
     ## Lambda matrix
     Lambda_est <- mxEval(Lambda, mx.fit)
@@ -269,12 +284,12 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, pca=c("COV"
     dimnames(pi_cum) <- list(PC_cum_vars, c("Estimate", "SE", "Lower 95% CI", "Upper 95% CI"))
     
     if (pca=="COR") {
-        Dx_est <- mxEval(SDx, mx.fit)
-        Dx_SE <- suppressMessages(mxSE(SDx, mx.fit))
+        Dx_est <- mxEval(Dx, mx.fit)
+        Dx_SE <- suppressMessages(mxSE(Dx, mx.fit))
         dimnames(Dx_est) <- dimnames(Dx_SE) <- list(X_vars, X_vars)
 
-        Dy_est <- mxEval(SDy, mx.fit)
-        Dy_SE <- suppressMessages(mxSE(SDy, mx.fit))
+        Dy_est <- mxEval(Dy, mx.fit)
+        Dy_SE <- suppressMessages(mxSE(Dy, mx.fit))
         dimnames(Dy_est) <- dimnames(Dy_SE) <- list(Y_vars, Y_vars)    
     } else {
         Dx_est <- Dx_SE <- NULL
@@ -298,7 +313,7 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, pca=c("COV"
 
     B_unstand_est <- mxEval(B_unstand, mx.fit)
     B_unstand_SE <- suppressMessages(mxSE(B_unstand, mx.fit))
-    dimnames(B_unstand_est) <- dimnames(B_unstand_SE) <- list(PC_vars, Y_vars)
+    dimnames(B_unstand_est) <- dimnames(B_unstand_SE) <- list(X_vars, Y_vars)
 
     beta0_est <- mxEval(t(beta0), mx.fit)
     beta0_SE <- suppressMessages(mxSE(t(beta0), mx.fit))
@@ -311,13 +326,15 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, pca=c("COV"
                 V_SE=V_SE, Lambda_SE=Lambda_SE, H_SE=H_SE, Psi_SE=Psi_SE,
                 Alpha_SE=Alpha_SE, Tau_SE=Tau_SE, Dx_SE=Dx_SE, Dy_SE=Dy_SE,
                 B_unstand_est=B_unstand_est, B_unstand_SE=B_unstand_SE,
-                beta0_est=beta0_est, beta0_SE=beta0_SE, pi=pi, pi_cum=pi_cum, pca=pca)
+                beta0_est=beta0_est, beta0_SE=beta0_SE, pi=pi, pi_cum=pi_cum,
+                pca=pca, pc_select=pc_select)
 
     class(out) <- "MPCR"  
     out
 }
 
-print.MPCR <- function(x, ...) {
+
+print.MPCR <- function(x, digits=4, ...) {
     if (!is.element("MPCR", class(x)))
         stop("\"x\" must be an object of class \"MPCR\".")
 
@@ -330,68 +347,71 @@ print.MPCR <- function(x, ...) {
     cat("Please check the constraints before interpreting the results.\n\n")
     cat("Constraint 1: The followings should be either 0 or 1:\n", x$Constraint1, "\n\n")
     if (x$pca=="COR") cat("Constraint 2: The followings should be 1: ", x$Constraint2, ".\n")
-  
+
+    cat("\nThe PC used to construct beta0 and B_unstand are:", x$pc_select, ".\n")
+    
     cat("\nV matrix:\n")
-    print(x$V_est)
+    .mprint(x$V_est, digits=digits)
     cat("\nV matrix (SE):\n")
-    print(x$V_SE)
+    .mprint(x$V_SE, digits=digits)
   
     cat("\nLambda matrix:\n")
-    print(x$Lambda_est)
+    .mprint(x$Lambda_est, digits=digits)
     cat("\nLambda matrix (SE):\n")
-    print(x$Lambda_SE)
+    .mprint(x$Lambda_SE, digits=digits)
   
     cat("\nH matrix:\n")
-    print(x$H_est)
+    .mprint(x$H_est, digits=digits)
     cat("\nH matrix (SE):\n")
-    print(x$H_SE)
+    .mprint(x$H_SE, digits=digits)
 
     cat("\nPsi matrix:\n")
-    print(x$Psi_est)
+    .mprint(x$Psi_est, digits=digits)
     cat("\nPsi matrix (SE):\n")
-    print(x$Psi_SE)
+    .mprint(x$Psi_SE, digits=digits)
     
     if (!is.null(x$Alpha_est)) {
         cat("\nAlpha vector:\n")
-        print(x$Alpha_est)
+        .mprint(x$Alpha_est, digits=digits)
         cat("\nAlpha vector (SE):\n")
-        print(x$Alpha_SE)      
+        .mprint(x$Alpha_SE, digits=digits)      
     }
 
     if (!is.null(x$Dx_est)) {
         cat("\nDx matrix:\n")
-        print(x$Dx_est)
+        .mprint(x$Dx_est, digits=digits)
         cat("\nDx matrix (SE):\n")
-        print(x$Dx_SE)      
+        .mprint(x$Dx_SE, digits=digits)      
     }
 
     if (!is.null(x$Dy_est)) {
         cat("\nDy matrix:\n")
-        print(x$Dy_est)
+        .mprint(x$Dy_est, digits=digits)
         cat("\nDy matrix (SE):\n")
-        print(x$Dy_SE)      
+        .mprint(x$Dy_SE, digits=digits)      
     }
         
     if (!is.null(x$Tau_est)) {
         cat("\nTau matrix:\n")
-        print(x$Tau_est)
+        .mprint(x$Tau_est, digits=digits)
         cat("\nTau matrix (SE):\n")
-        print(x$Tau_SE)      
+        .mprint(x$Tau_SE, digits=digits)      
     }
 
+
     cat("\nbeta0 matrix:\n")
-    print(x$beta0_est)
+    .mprint(x$beta0_est, digits=digits)
     cat("\nbeta0 matrix (SE):\n")
-    print(x$beta0_SE)
+    .mprint(x$beta0_SE, digits=digits)
     
     cat("\nB_unstand matrix:\n")
-    print(x$B_unstand_est)
+    .mprint(x$B_unstand_est, digits=digits)
     cat("\nB_unstand matrix (SE):\n")
-    print(x$B_unstand_SE)
+    .mprint(x$B_unstand_SE, digits=digits)
 
     cat("\npi vector:\n")
-    print(x$pi)
+    .mprint(x$pi, digits=digits)
 
     cat("\nCumulative pi vector:\n")
-    print(x$pi_cum)     
+    .mprint(x$pi_cum, digits=digits)     
 }

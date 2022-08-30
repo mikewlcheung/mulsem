@@ -238,7 +238,7 @@ rda <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
     out
 }
 
-print.RDA <- function(x, ...) {
+print.RDA <- function(x, digits=4, ...) {
     if (!is.element("RDA", class(x)))
         stop("\"x\" must be an object of class \"RA\".")
 
@@ -247,27 +247,27 @@ print.RDA <- function(x, ...) {
     cat("Constraint 2: The followings (min and max) should be close to 0. ", x$Constraint2, "\n")
   
     cat("\nW matrix:\n")
-    print(x$W_est)
+    .mprint(x$W_est, digits=digits)
     cat("\nW matrix (SE):\n")
-    print(x$W_SE)
+    .mprint(x$W_SE, digits=digits)
   
     cat("\nLy matrix:\n")
-    print(x$Ly_est)
+    .mprint(x$Ly_est, digits=digits)
     cat("\nLy matrix (SE):\n")
-    print(x$Ly_SE)
+    .mprint(x$Ly_SE, digits=digits)
   
     cat("\nLx matrix:\n")
-    print(x$Lx_est)
+    .mprint(x$Lx_est, digits=digits)
     cat("\nLx matrix (SE):\n")
-    print(x$Lx_SE)
+    .mprint(x$Lx_SE, digits=digits)
   
     cat("\nIndividual redundancy:\n")
-    print(x$Lambdas_est)
+    .mprint(x$Lambdas_est, digits=digits)
     cat("\nIndividual redundancy (SE):\n")
-    print(x$Lambdas_SE)
+    .mprint(x$Lambdas_SE, digits=digits)
 
     cat("\nCumulative redundancy:\n")
-    print(x$Lambdas_cum_est)
+    .mprint(x$Lambdas_cum_est, digits=digits)
     cat("\nCumulative redundancy (SE):\n")
-    print(x$Lambdas_cum_SE)
+    .mprint(x$Lambdas_cum_SE, digits=digits)
 }
