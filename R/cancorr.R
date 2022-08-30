@@ -274,7 +274,7 @@ print.CanCorr <- function(x, digits=4, ...) {
     
     if (x$model %in% c("CORR-W", "CORR-L")) {
         cat("Please check the constraint before interpreting the results.\n")
-        cat("Constraint: The followings should be close to 1: ", x$Constraint, ".\n")
+        cat("Constraint. The followings should be close to 1: ", round(x$Constraint, 6), ".\n")
     }
       
     cat("\nA1 matrix (X_vars):\n")

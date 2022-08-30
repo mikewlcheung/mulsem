@@ -243,8 +243,8 @@ print.RDA <- function(x, digits=4, ...) {
         stop("\"x\" must be an object of class \"RA\".")
 
     cat("Please check the constraints before interpreting the results.\n")
-    cat("Constraint 1: The followings should be close to 1. ", x$Constraint1, "\n")
-    cat("Constraint 2: The followings (min and max) should be close to 0. ", x$Constraint2, "\n")
+    cat("Constraint 1. The followings should be close to 1:", round(x$Constraint1, 6), ".\n")
+    cat("Constraint 2. The followings (min and max) should be close to 0:", round(x$Constraint2, 6), ".\n")
   
     cat("\nW matrix:\n")
     .mprint(x$W_est, digits=digits)

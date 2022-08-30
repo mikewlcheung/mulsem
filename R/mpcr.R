@@ -1,4 +1,5 @@
-.mprint <- function(x, digits=4) print(round(x, digits), digits=digits)
+#.mprint <- function(x, digits=4) print(round(x, digits), digits=digits)
+.mprint <- function(x, digits=4) print(noquote(format(round(x, digits), digits=digits)))
 
 mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, pca=c("COV", "COR"),
                  pc_select=NULL, extraTries=50, ...) {
@@ -345,8 +346,8 @@ print.MPCR <- function(x, digits=4, ...) {
     }
     
     cat("Please check the constraints before interpreting the results.\n\n")
-    cat("Constraint 1: The followings should be either 0 or 1:\n", x$Constraint1, "\n\n")
-    if (x$pca=="COR") cat("Constraint 2: The followings should be 1: ", x$Constraint2, ".\n")
+    cat("Constraint 1. The followings should be either 0 or 1:\n", round(x$Constraint1, 6), ".\n\n")
+    if (x$pca=="COR") cat("Constraint 2. The followings should be 1: ", round(x$Constraint2, 6), ".\n")
 
     cat("\nThe PC used to construct beta0 and B_unstand are:", x$pc_select, ".\n")
     
@@ -392,16 +393,16 @@ print.MPCR <- function(x, digits=4, ...) {
     }
         
     if (!is.null(x$Tau_est)) {
-        cat("\nTau matrix:\n")
+        cat("\nTau vector:\n")
         .mprint(x$Tau_est, digits=digits)
-        cat("\nTau matrix (SE):\n")
+        cat("\nTau vector (SE):\n")
         .mprint(x$Tau_SE, digits=digits)      
     }
 
 
-    cat("\nbeta0 matrix:\n")
+    cat("\nbeta0 vector:\n")
     .mprint(x$beta0_est, digits=digits)
-    cat("\nbeta0 matrix (SE):\n")
+    cat("\nbeta0 vector (SE):\n")
     .mprint(x$beta0_SE, digits=digits)
     
     cat("\nB_unstand matrix:\n")
