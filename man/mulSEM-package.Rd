@@ -21,10 +21,8 @@ Maintainer: Mike Cheung <mikewlcheung@nus.edu.sg>
 \references{
 Gu, F., Yung, Y.-F., & Cheung, M. W.-L. (2019). Four covariance structure models for canonical correlation analysis: A COSAN modeling approach. \emph{Multivariate Behavioral Research}, \bold{54}(2), 192-223. https://doi.org/10.1080/00273171.2018.1512847
   
-Gu, F., Yung, Y.-F., & Cheung, M. W.-L. (2021). Statistical inference in
-redundancy analysis: A direct covariance structure modeling
-approach. \emph{Manuscript submitted for publication}.
-
+Gu, F., Yung, Y.-F., Cheung, M. W.-L. Joo, B.-K., & Nimon, K. (accepted for publication). Statistical inference in redundancy analysis: A direct covariance structure modeling
+approach. \emph{Multivariate Behavioral Research}.
 }
 
 \examples{

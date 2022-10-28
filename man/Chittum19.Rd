@@ -21,9 +21,8 @@ A list of data with the following structure:
 Chittum, J. R., Jones, B. D., & Carter, D. M. (2019). A person-centered investigation of patterns in college students' perceptions of motivation in a course. \emph{Learning and Individual Differences}, \bold{69}, 94-107. https://doi.org/10.1016/j.lindif.2018.11.007
 }
 \references{
-  Gu, F., Yung, Y.-F., & Cheung, M. W.-L. (2021). Statistical inference
-  in redundancy analysis: A direct covariance structure modeling
-  approach. \emph{Manuscript in preparation}.
+  Gu, F., Yung, Y.-F., Cheung, M. W.-L. Joo, B.-K., & Nimon, K. (accepted for publication). Statistical inference in redundancy analysis: A direct covariance structure modeling
+approach. \emph{Multivariate Behavioral Research}.
 }
 \examples{
 data(Chittum19)

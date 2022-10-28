@@ -218,6 +218,9 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, pca=c("COV"
                             t(V%*%Fpm) %*% V %*% Alpha, name="beta0")        
     }
 
+    ## Unbounded value of logit pi
+    logitpi <- mxAlgebra( log(pi/(1-pi)), name="logitpi")
+
     ## Matrix for cumulative sum
     K <- matrix(1, nrow=p, ncol=p)
     K[upper.tri(K)] <- 0
@@ -226,7 +229,7 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, pca=c("COV"
     ## Cumulative sum of pis
     pi_cum <- mxAlgebra(K %*% pi, name="pi_cum")
     
-    mx.model <- mxModel(mx.model, J, pi, K, pi_cum, B_unstand, beta0, Fpm)
+    mx.model <- mxModel(mx.model, J, pi, K, pi_cum, B_unstand, beta0, Fpm, logitpi)
   
     if (extraTries==0) {
         mx.fit <- suppressMessages(mxRun(mx.model, ...))
@@ -268,13 +271,18 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, pca=c("COV"
     Psi_SE <- suppressMessages(mxSE(Psi, mx.fit))
     dimnames(Psi_est) <- dimnames(Psi_SE) <- list(Y_vars, Y_vars)
 
-    ## pi matrix
+    ## Unbounded value of logit pi matrix
+    ## After calculating the CI of logit pi, it is converted back to the CI of pi
+    logitpi_est <- mxEval(logitpi, mx.fit)
+    logitpi_SE <- suppressMessages(mxSE(logitpi, mx.fit))
+    logitpi_lci <- logitpi_est - 1.96*logitpi_SE
+    logitpi_uci <- logitpi_est + 1.96*logitpi_SE
+
     pi_est <- mxEval(pi, mx.fit)
-    pi_SE <- suppressMessages(mxSE(pi, mx.fit))
-    pi_lci <- pi_est - 1.96*pi_SE
-    pi_uci <- pi_est + 1.96*pi_SE
-    pi <- cbind(pi_est, pi_SE, pi_lci, pi_uci)
-    dimnames(pi) <- list(PC_vars, c("Estimate", "SE", "Lower 95% CI", "Upper 95% CI"))
+    pi_lci <- exp(logitpi_lci)/(1+exp(logitpi_lci))
+    pi_uci <- exp(logitpi_uci)/(1+exp(logitpi_uci))
+    pi <- cbind(pi_est, pi_lci, pi_uci)
+    dimnames(pi) <- list(PC_vars, c("Estimate", "Lower 95% CI", "Upper 95% CI"))
 
     ## Cumulative pi matrix
     pi_cum_est <- mxEval(pi_cum, mx.fit)
@@ -345,8 +353,8 @@ print.MPCR <- function(x, digits=4, ...) {
         cat("\nPCA: Analysis of correlation matrix.\n")
     }
     
-    cat("Please check the constraints before interpreting the results.\n\n")
-    cat("Constraint 1. The followings should be either 0 or 1:\n", round(x$Constraint1, 6), ".\n\n")
+    cat("\nPlease check the constraints before interpreting the results.\n")
+    cat("Constraint 1. The followings should be either 0 or 1:\n", round(x$Constraint1, 6), ".\n")
     if (x$pca=="COR") cat("Constraint 2. The followings should be 1: ", round(x$Constraint2, 6), ".\n")
 
     cat("\nThe PC used to construct beta0 and B_unstand are:", x$pc_select, ".\n")

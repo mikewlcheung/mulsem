@@ -16,9 +16,8 @@ A data frame of 13 variables.
   Nimon, K., Joo, B.-K. (Brian), & Bontrager, M. (2021). Work cognitions and work intentions: A canonical correlation study. \emph{Human Resource Development International}, \bold{24}(1), 65-91. https://doi.org/10.1080/13678868.2020.1775038
 }
 \references{
-  Gu, F., Yung, Y.-F., & Cheung, M. W.-L. (2021). Statistical inference
-  in redundancy analysis: A direct covariance structure modeling
-  approach. \emph{Manuscript in preparation}.
+  Gu, F., Yung, Y.-F., Cheung, M. W.-L. Joo, B.-K., & Nimon, K. (accepted for publication). Statistical inference in redundancy analysis: A direct covariance structure modeling
+approach. \emph{Multivariate Behavioral Research}.
 }
 \examples{
 data(Nimon21)
