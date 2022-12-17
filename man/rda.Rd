@@ -31,8 +31,8 @@ rda(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...)
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
 \references{
-  Gu, F., Yung, Y.-F., Cheung, M. W.-L. Joo, B.-K., & Nimon, K. (accepted for publication). Statistical inference in redundancy analysis: A direct covariance structure modeling
-approach. \emph{Multivariate Behavioral Research}.
+  Gu, F., Yung, Y.-F., Cheung, M. W.-L. Joo, B.-K., & Nimon, K. (2022). Statistical inference in redundancy analysis: A direct covariance structure modeling
+approach. \emph{Multivariate Behavioral Research}. https://doi.org/10.1080/00273171.2022.2141675
 }  
 \seealso{\code{\link[mulSEM]{Chittum19}}, \code{\link[mulSEM]{sasv8ch65sec26}}}
 
