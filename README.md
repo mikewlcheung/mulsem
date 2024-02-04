@@ -1,4 +1,8 @@
 [![R build status](https://github.com/mikewlcheung/mulsem/workflows/R-CMD-check/badge.svg)](https://github.com/mikewlcheung/mulsem/actions)
+[![cran version](http://www.r-pkg.org/badges/version/mulSEM)](https://cran.r-project.org/package=mulSEM)
+[![Monthly Downloads](http://cranlogs.r-pkg.org/badges/mulSEM)](https://cranlogs.r-pkg.org/badges/mulSEM)
+[![Total Downloads](http://cranlogs.r-pkg.org/badges/grand-total/mulSEM)](https://cranlogs.r-pkg.org/badges/grand-total/mulSEM)
+[![Rdoc](http://www.rdocumentation.org/badges/version/mulSEM)](https://www.rdocumentation.org/packages/mulSEM)
 
 The `mulSEM` package includes some multivariate analyses utilizing a structural equation modeling (SEM) approach through the 'OpenMx' package. These analyses include canonical correlation analysis (CANCORR), redundancy analysis (RDA), and multivariate principal component regression (MPCR).
 
