@@ -27,13 +27,15 @@ Thorndike, R. M. (2000). Canonical correlation analysis. In
 Gu, F., Yung, Y.-F., & Cheung, M. W.-L. (2019). Four covariance structure models for canonical correlation analysis: A COSAN modeling approach. \emph{Multivariate Behavioral Research}, \bold{54(2)}, 192-223. https://doi.org/10.1080/00273171.2018.1512847
 }
 \examples{
+\donttest{
 data(Thorndike00)
 
 ## Canonical Correlation Analysis
-## Note. We swap the X_vars and Y_vars because cancorr() expects that X_vars cannot have more variables than Y_vars.
+## Note. We swap the X_vars and Y_vars because cancorr() expects that
+## X_vars cannot have more variables than Y_vars.
 
 cancorr(X_vars=c("y1", "y2", "y3", "y4", "y5"),
         Y_vars=c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8"),
         Cov=Thorndike00$data, numObs=Thorndike00$n)
 }
-
+}

@@ -169,7 +169,7 @@ rda <- function(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...) {
                             mxFitFunctionML(), constraint1, constraint2)
     }
 
-    ## User the starting values as the final estimates.
+    ## Use the starting values as the final estimates.
     ## Do not activate the optimizer
     ## if (optimizer==FALSE) {
     ##     plan <- omxDefaultComputePlan()

@@ -134,13 +134,11 @@ cancorr <- function(X_vars, Y_vars, data=NULL, Cov, numObs,
 
     ## Create Lambda matrix
     Lambda <- mxMatrix("Diag", nrow=p, ncol=p, free=TRUE, labels=paste0("l", 1:p),
-                       values=SVD$d,
-                       lbound=1e-10,
-                       name="Lambda")
+                       values=SVD$d, lbound=1e-10, name="Lambda")
 
     ## Create a repeated contrast
     cont  <- cbind(diag(p-1), matrix(0, ncol=1, nrow=(p-1))) +
-        cbind(matrix(0, ncol=1, nrow=(p-1)), (-1)*diag(p-1))
+             cbind(matrix(0, ncol=1, nrow=(p-1)), (-1)*diag(p-1))
     Cont <- mxMatrix("Full", nrow=p-1, ncol=p, free=FALSE,
                      values=cont, name="Cont")
 
@@ -170,9 +168,9 @@ cancorr <- function(X_vars, Y_vars, data=NULL, Cov, numObs,
     if (analysis.cor) {
         ## Matrix to fit SDs of the variables
         SD <- mxMatrix("Diag", nrow=(p+q), ncol=(p+q), free=TRUE, 
-                   values=sqrt(diag(Cov[c(X_vars, Y_vars), c(X_vars, Y_vars)])), 
-                   labels=c(paste0("sdx", 1:p), paste0("sdy", 1:q)),
-                   name="SD")
+                       values=sqrt(diag(Cov[c(X_vars, Y_vars), c(X_vars, Y_vars)])), 
+                       labels=c(paste0("sdx", 1:p), paste0("sdy", 1:q)),
+                       name="SD")
 
         ## (p+q) column vector of ones
         p_qOne1 <- mxMatrix("Unit", nrow=p+q, ncol=1, name="p_qOne1") 

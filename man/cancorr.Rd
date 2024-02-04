@@ -31,7 +31,8 @@ cancorr(X_vars, Y_vars, data=NULL, Cov, numObs,
 \note{\code{cancorr} expects that there are equal or more number of
   variables in \code{Y_vars}. If there are fewer variables in
   \code{Y_vars}, you may swap between \code{X_vars} and \code{Y_vars}.}
-\value{A list of output. The mx fitted object is in the slot of \code{mx.fit}.
+\value{A list of output with class \code{CanCor}. It stores the model in
+  OpenMx objects. The fitted object is in the slot of \code{mx.fit}.
 }
 
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
@@ -42,5 +43,5 @@ cancorr(X_vars, Y_vars, data=NULL, Cov, numObs,
   approach. \emph{Multivariate Behavioral Research}, \bold{54(2)},
   192-223. https://doi.org/10.1080/00273171.2018.1512847
 }  
-\seealso{\code{\link[mulSEM]{Thorndike00}}, \code{\link[mulSEM]{sasv8ch20sec20}}}
+\seealso{\code{\link[mulSEM]{Thorndike00}}, \code{\link[mulSEM]{sas_ex1}}}
 

@@ -1,6 +1,3 @@
-#.mprint <- function(x, digits=4) print(round(x, digits), digits=digits)
-.mprint <- function(x, digits=4) print(noquote(format(round(x, digits), digits=digits)))
-
 mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, pca=c("COV", "COR"),
                  pc_select=NULL, extraTries=50, ...) {
 
@@ -107,7 +104,6 @@ mpcr <- function(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, pca=c("COV"
         Tau <- mxMatrix(type="Full", nrow=q, ncol=1, free=TRUE, 
                         values=Tau_start, labels=paste0("tau", seq_len(q)), name="Tau")           
     }
-
 
     if (pca=="COV") {            
         ## Covariance structure: Equation 3
@@ -348,9 +344,9 @@ print.MPCR <- function(x, digits=4, ...) {
         stop("\"x\" must be an object of class \"MPCR\".")
 
     if (x$pca=="COV") {
-        cat("\nPCA: Analysis of covariance matrix.\n")
+        cat("\nMPCR: Analysis of covariance matrix.\n")
     } else {
-        cat("\nPCA: Analysis of correlation matrix.\n")
+        cat("\nMPCR: Analysis of correlation matrix.\n")
     }
     
     cat("\nPlease check the constraints before interpreting the results.\n")

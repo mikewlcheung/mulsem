@@ -1,11 +1,11 @@
-\name{sasv8ch20sec20}
-\alias{sasv8ch20sec20}
+\name{sas_ex1}
+\alias{sas_ex1}
 \docType{data}
 \title{Sample data for canonical correlation analysis from the SAS manual
 }
 \description{This dataset includes six variables of fitness club data from the SAS manual.
 }
-\usage{data("sasv8ch20sec20")}
+\usage{data("sas_ex1")}
 
 \details{
 \describe{A 20x6 data matrix.
@@ -13,14 +13,14 @@
 }
 
 \source{
-\url{https://v8doc.sas.com/sashtml/stat/chap20/sect20.htm}
+\url{https://documentation.sas.com/doc/en/statcdc/14.2/statug/statug_cancorr_example01.htm}
 }
 
 \examples{
-data(sasv8ch20sec20)
+data(sas_ex1)
 
 ## Canonical Correlation Analysis
 cancorr(X_vars=c("Weight", "Waist", "Pulse"),
         Y_vars=c("Chins", "Situps", "Jumps"),
-        data=sasv8ch20sec20)
+        data=sas_ex1)
 }

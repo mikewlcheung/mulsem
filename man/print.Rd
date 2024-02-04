@@ -20,6 +20,6 @@
 	is 4.}
   \item{\dots}{Unused.}
 }
-
+\value{No return value, called for side effects}
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }

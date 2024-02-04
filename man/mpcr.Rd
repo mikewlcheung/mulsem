@@ -2,11 +2,14 @@
 \alias{mpcr}
 \title{Multivariate Principal Component Regression (MPCR)
 }
-\description{It conducts a multivariate principal component regression analysis using the OpenMx package. Missing data are handled with the full information maximum likelihood
-  method when raw data are available. It provides standard errors on the estimates.
+\description{It conducts a multivariate principal component regression
+  analysis using the OpenMx package. Missing data are handled with the
+  full information maximum likelihood method when raw data are
+  available. It provides standard errors on the estimates. 
 }
 \usage{
-mpcr(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, pca=c("COV", "COR"), pc_select=NULL, extraTries=50, ...)
+mpcr(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, pca=c("COV", "COR"),
+     pc_select=NULL, extraTries=50, ...)
 }
 \arguments{
   \item{X_vars}{A vector of characters of the X variables.}
@@ -29,15 +32,19 @@ mpcr(X_vars, Y_vars, data=NULL, Cov, Means=NULL, numObs, pca=c("COV", "COR"), pc
 	\code{\link[OpenMx]{mxTryHard}} or \code{\link[OpenMx]{mxRun}}.}
 }
 
-\value{A list of output. The mx fitted object is in the slot of \code{mx.fit}.
+\value{A list of output with class \code{MPCR}. It stores the model in
+  OpenMx objects. The fitted object is in the slot of \code{mx.fit}.
 }
 
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
 \references{
-  Gu, F., & Cheung, M. W.-L. (2022). A Model-based approach to
-  multivariate principal component regression: Selection of principal components and standard error estimates for
-unstandardized regression coefficients. \emph{Manuscript in preparation}.
+  Gu, F., & Cheung, M. W.-L. (2023). A Model-based approach to
+  multivariate principal component regression: Selection of principal
+  components and standard error estimates for unstandardized regression
+  coefficients. \emph{British Journal of Mathematical and Statistical
+	Psychology}, \bold{76(3)}, 605-622. 
+  https://doi.org/10.1111/bmsp.12301 
 }  
-
+\seealso{\code{\link[mulSEM]{Nimon21}}}
 

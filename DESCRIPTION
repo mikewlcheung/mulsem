@@ -1,19 +1,21 @@
 Package: mulSEM
 Type: Package
 Title: Some Multivariate Analyses using Structural Equation Modeling
-Version: 0.2
-Date: 2022-10-28
-Depends: R (>= 3.4.0), OpenMx (>= 2.17.1)
+Version: 1.0
+Date: 2024-02-03
+Depends: R (>= 3.5.0), OpenMx
 Imports: stats
 Authors@R: c(person(given = "Mike", family = "Cheung", role = c("aut","cre"), email = "mikewlcheung@nus.edu.sg", comment = c(ORCID = "0000-0003-0113-0758")),
              person(given = "Fei", family = "Gu", role = c("ctb"), email = "fgu@vt.edu", comment = c(ORCID = "0000-0002-1753-8398")),
              person(given = "Yiu-Fai", family = "Yung", role = c("ctb"), email = "Yiu-Fai.Yung@sas.com"))
 Maintainer: Mike Cheung <mikewlcheung@nus.edu.sg>
-Description: A collection of functions for some multivariate analyses using a
-             structural equation modeling (SEM) approach via the 'OpenMx' package.
-             These analsyes include, e.g., canonical correlation analysis (CANCORR),
-			 redundancy analysis (RDA), and multivariate principal component regression (MPCR).
-			 see Gu, Yung, and Cheung (2019) <doi:10.1080/00273171.2018.1512847>.
+Description: A set of functions for some multivariate analyses utilizing a
+             structural equation modeling (SEM) approach through the 'OpenMx' package.
+             These analyses include canonical correlation analysis (CANCORR),
+             redundancy analysis (RDA), and multivariate principal component regression (MPCR).
+             It implements procedures discussed in Gu and Cheung (2023) <doi:10.1111/bmsp.12301>,
+             Gu, Yung, and Cheung (2019) <doi:10.1080/00273171.2018.1512847>, and
+             Gu et al. (2023) <doi:10.1080/00273171.2022.2141675>.
 License: GPL (>=2)
 LazyLoad: yes
 LazyData: yes

@@ -1,7 +1,12 @@
 [![R build status](https://github.com/mikewlcheung/mulsem/workflows/R-CMD-check/badge.svg)](https://github.com/mikewlcheung/mulsem/actions)
 
+The `mulSEM` package includes some multivariate analyses utilizing a structural equation modeling (SEM) approach through the 'OpenMx' package. These analyses include canonical correlation analysis (CANCORR), redundancy analysis (RDA), and multivariate principal component regression (MPCR).
 
-The `mulSEM` package includes some multivariate analyses using a structural equation modeling (SEM) approach via the 'OpenMx' package. These analsyes include, e.g., canonical correlation analysis and redundancy analysis.
+You may install it from CRAN by:
+
+```
+install.packages("mulSEM")
+```
 
 The developmental version can be installed from GitHub by:
 ```
@@ -15,10 +20,17 @@ library(mulSEM)
 ## Canonical Correlation Analysis
 cancorr(X_vars=c("Weight", "Waist", "Pulse"),
         Y_vars=c("Chins", "Situps", "Jumps"),
-        data=sasv8ch20sec20)
+        data=sas_ex1)
 
 ## Redundancy Analysis
 rda(X_vars=c("x1", "x2", "x3", "x4"),
     Y_vars=c("y1", "y2", "y3"),
-    data=sasv8ch65sec26)
+    data=sas_ex2)
+	
+## Multivariate Principal Component Regression	
+mpcr(X_vars=c("AU", "CC", "CL", "CO", "DF", "FB", "GR", "MW"),
+     Y_vars=c("IDE", "IEE", "IOCB", "IPR", "ITS"),
+     pca="COR", pc_select=1,
+     data=Nimon21)
 ```
+

@@ -25,14 +25,15 @@ rda(X_vars, Y_vars, data=NULL, Cov, numObs, extraTries=50, ...)
 	\code{\link[OpenMx]{mxTryHard}} or \code{\link[OpenMx]{mxRun}}.}
 }
 
-\value{A list of output. The mx fitted object is in the slot of \code{mx.fit}.
+\value{A list of output with class \code{RDA}. It stores the model in
+  OpenMx objects. The fitted object is in the slot of \code{mx.fit}.
 }
 
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
 \references{
-  Gu, F., Yung, Y.-F., Cheung, M. W.-L. Joo, B.-K., & Nimon, K. (2022). Statistical inference in redundancy analysis: A direct covariance structure modeling
-approach. \emph{Multivariate Behavioral Research}. https://doi.org/10.1080/00273171.2022.2141675
+  Gu, F., Yung, Y.-F., Cheung, M. W.-L. Joo, B.-K., & Nimon, K. (2023). Statistical inference in redundancy analysis: A direct covariance structure modeling
+approach. \emph{Multivariate Behavioral Research}, \bold{58(5}, 877-893. https://doi.org/10.1080/00273171.2022.2141675
 }  
-\seealso{\code{\link[mulSEM]{Chittum19}}, \code{\link[mulSEM]{sasv8ch65sec26}}}
+\seealso{\code{\link[mulSEM]{Chittum19}}, \code{\link[mulSEM]{sas_ex2}}}
 

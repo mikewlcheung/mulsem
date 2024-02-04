@@ -1,4 +1,4 @@
-sasv8ch20sec20 <-
+sas_ex1 <-
 structure(list(Weight = c(191L, 189L, 193L, 162L, 189L, 182L, 
 211L, 167L, 176L, 154L, 169L, 166L, 154L, 247L, 193L, 202L, 176L, 
 157L, 156L, 138L), Waist = c(36L, 37L, 38L, 35L, 35L, 36L, 38L, 
